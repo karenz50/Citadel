@@ -1,0 +1,55 @@
+Interim Report #1
+Unsupervised Machine Learning for Analysis of Young Star Photometric Light Curves
+Karen Zhou
+
+Background
+In astronomy, there is an abundance of data on countless objects such as stars and galaxies as well as other observational techniques including imaging, photometry spectroscopy, polarimetry, and time domain. Particularly in the present day, it becomes increasingly difficult to analyze this wealth of data and gain insight from it, en masse. However, machine learning may facilitate this process of discovery by streamlining the process of finding connections between data points with many features. 
+While there is a great deal of work with supervised learning in astronomy from Rodríguez-Feliciano et al.’s optimization algorithm for characterizing light features to Mistry et al.’s work with random forest classifiers for cataclysmic variables, the application of unsupervised learning algorithms is relatively unexplored in comparison. In Professor Hillenbrand's work and that of those working with her, they have pioneered groundbreaking research in the field of observational astrophysics, particularly focusing on the formation and evolution of young stellar objects. Through meticulous analysis of optical infrared and submillimeter data as well as the development and application of innovative observational techniques, Professor Hillenbrand and her team have unraveled key insights into the early stages of star formation, shedding light on the physical processes governing these celestial phenomena, as well as the properties of young accretion disks and older debris disks around stars. 
+Each data point within the K2 and TESS datasets is rich in features, presenting a valuable opportunity to enhance the performance and robustness of unsupervised machine learning algorithms. As depicted in Figure 1, light curves of young stars often exhibit a degree of complexity and non-periodicity, which is particularly noticeable in the TESS dataset. This intricacy underscores the potential benefits of employing unsupervised machine learning techniques for analysis, as traditional visual inspection methods may be insufficient to fully capture the nuances present in these datasets. By leveraging the multitude of features available in each data point, unsupervised machine learning holds promise in uncovering underlying patterns and structures in the data that may not be readily discernible through manual examination alone.
+
+Fig. 1. Light curves for disk-bearing and non-disk-bearing sources towards Taurus. Young star light curves are difficult to gain insight from because of their inherent disorder  (Cody et al.).
+
+Objectives and Methodology
+	In Ann Marie Cody et al.’s previous work, the light curves in the Kepler/K2 dataset were categorized into eight variability classes based on their periodicity and symmetry. Thus, in this project, I aim to analyze photometric light curves of young stars by utilizing unsupervised machine learning on the time-resolved photometric datasets containing identification information, stellar features, and photometric variability characteristics. I will use both the Kepler/K2 and the Transiting Exoplanet Survey Satellite (TESS) dataset containing high-precision photometry of thousands of stars in the K2 dataset and over 200,000 stars in the TESS dataset with calibrated light curves.
+
+Name
+Symbol
+Name
+Symbol
+Aperiodic Dipper
+APD
+Quasi-periodic Dipper
+QPD
+Burster
+B
+Quasi-periodic
+QPS
+Long-timescale
+L
+Periodic
+P
+Multiperiodic
+MP
+Stochastic
+S
+
+
+Table 1. The eight variability classes and their corresponding symbols (Cody et al.).
+In order to work with the light curve data, I processed the raw data contained in .dat type files and graphed the time scale and the median normalized flux samples with their corresponding EPIC IDs to ensure validity. Then, I applied min-max scaling to reduce the variance while preserving the relative order and distance of the data points. Since each light curve had a different number of data points, I reduced the dimensionality of light curves to match the one with the fewest data points. Furthermore, to refine the data and minimize interference, I removed the first few data points for each light curve, which tended to contain the most noise due to the start of data collection. After that, I was able to apply various unsupervised machine learning techniques to the refined data using standard parameters.
+Fig. 2. Light curves from the K2 dataset graphed with normalized curves.
+
+Initially, I unsuccessfully applied various clustering algorithms to the optimized data, which will be discussed in further detail later. Spectral clustering, which works by constructing a similarity matrix from the data and then using it to identify clusters of similar data points by using eigenvalue decomposition to reduce dimensionality, yielded the most promising results for our analysis. By transforming the data into a lower-dimensional space where the clusters are more distinct and effectively capturing the intrinsic structure of light curves, spectral clustering has the greatest potential for accurately grouping young stars with similar characteristics. Additionally, since this method is particularly suited for handling complex and non-linear relationships in the data, it is ideal for uncovering subtle patterns and variations in the photometric light curves of young stars.
+Progress Overview
+The results thus far are quite interesting, as the eight variability classes defined by Cody et al. are semi-recoverable using unsupervised machine learning techniques. As demonstrated in Figure 3, stars from the same variability classes tended to cluster together, suggesting the unsupervised approach can partially replicate the classification done by Cody et al. This is even more evident in Figure 4, where stars from each of the original groups are predominantly concentrated within a few distinct clusters. 
+To date, I have only tested the classification using spectral clustering with eight clusters, corresponding to the original variability classes. However, I plan to experiment with varying the number of clusters to explore whether additional insights can be gained from the light curve data. By adjusting the number of clusters, I hope to uncover finer substructures within the variability classes or possibly identify new groupings that were not previously apparent. Ultimately, this iterative approach will help to better understand the complex relationships and patterns inherent in the stellar light curves.
+
+Fig. 3. Graphs of the eight clusters determined through spectral clustering with light curves color coded by their original variability label.
+
+Fig. 4. Distribution of stars in the original eight variability classes across the computationally determined clusters. 
+
+Overall, the project has been reasonably successful so far, and I am excited to continue working with the K2 dataset before transitioning to the equivalent TESS light curves. This next phase will allow us to compare the classified stars from K2 with TESS data and evaluate how the increased noise in TESS affects the clustering results, which will provide valuable insights into the robustness and reliability of our unsupervised machine learning approach across different datasets.
+
+Challenges and Problems
+One of the challenges that I have encountered so far has been finding a clustering algorithm that works effectively on the K2 light curve data. At first, I wanted to use K–means clustering because it is efficient and straightforward for large datasets in addition to being relatively easier to implement and interpret. However, as seen on the left side in Figure 5, every star was classified in the same cluster with all other groups containing only a single light curve. This issue likely arose because the algorithm assumes clusters of equal variance, which does not hold true in this instance. A similar phenomenon occurred to a lesser extent with hierarchical clustering, likely because it is sensitive to noise and outliers, which can distort cluster formation. This is demonstrated on the right side in Figure 5. Lastly, with DBSCAN, no unique clusters were generated, possibly because DBSCAN is known to fail if the data has varying densities due to its requirement of uniform density within clusters, as seen in Figure 6. 
+I also encountered issues initially with the first spectral clustering attempt. Using the sklearn normalization function did not scale everything between the same values as I had expected, causing extreme outlier behavior to significantly affect the clusters. By implementing my own scaling function and then applying min-max normalization, I was able to resolve this issue by ensuring the light curve data was properly normalized. This adjustment significantly improved the clustering results, demonstrating the importance of appropriate data preprocessing in machine learning.
+I anticipate that the TESS dataset will present certain challenges when used in machine learning compared to the Kepler/K2 dataset. One significant disadvantage is the periodic discontinuities in the TESS data, resulting from its 2-minute sampling cadence for photometric data and 30-minute cadence for full image frame readings. These discontinuities can introduce noise and complicate the continuity of light curves, making it harder to extract precise patterns. As a result, while TESS provides a broader survey of stars, the Kepler/K2 dataset offers more consistent and detailed data, which makes it more suitable for certain unsupervised machine learning applications.
